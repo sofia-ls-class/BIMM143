@@ -1,0 +1,46 @@
+---
+title: "BIMM 143 Lab 16: Essential UNIX for bioinformatics"
+author: "Sofia Lanaspa, A17105313"
+format: html
+---
+
+To us the terminal: tools (top bar) --> terminal --> new terminal
+
+Some key unix cmds so far:
+pwd: print working dir 
+cd: change dir 
+ls: list files 
+mkdir: make new dir
+nano notes.txt: editor
+rm: remove files, dirs (**dangerous!**)
+cp/mv: cupm / mdvc  (copy or move files)
+less: pacer app
+apt-get: find, install and upgrade software
+
+
+SHORTCUTS
+'..' = down ong level (shortcut from where you are right now)
+~ = home area shortcutnano
+
+
+- spcaces mean something, create different folders if separeted by spcae
+
+
+WEB SERVICES:
+AWS (amazon web services)
+Google compute engine
+
+Successfully initiated launch of instance (i-02966b1f383463c8c)
+
+ssh -i "~/Downloads/sofia_bimm143.pem" ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com
+
+# manually write downloads since that is where the key is in our computer
+
+```{r}
+library(ggplot2)
+ggplot(b, aes((b$pident * (b$qend - b$qstart)), bitscore)) + geom_point(alpha=0.1) + geom_smooth()
+```
+
+
+
+
