@@ -22,7 +22,7 @@ Classwork for [BIMM143 F24]() at UC San Diego.
 
 - Class 14 [RNASeq Analysis](https://github.com/sofia-ls-class/BIMM143/blob/main/BIMM143_Lab14/BIMM143-Lab14-RNA-Seq-analysis.pdf)
 
-- Class 15 []()
+- Class 15 [Investigating Pertussis Resurgence](https://github.com/sofia-ls-class/BIMM143/blob/main/BIMM143_Lab15/BIMM143_Lab15_Pertussis_Resurgence.pdf)
 
 - Class 16 []()
 
