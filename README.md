@@ -2,4 +2,4 @@
 
 Classwork for [BIMM143 F24](https://bioboot.github.io/bimm143_F24/) at UC San Diego.
 
-- Class 16 [click here] ()
+- Class 14 [click here] ()
