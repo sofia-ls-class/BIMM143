@@ -1,7 +1,7 @@
 ---
 title: "BIMM143 Lab15 - Mini Project: Investigating Pertussis Resurgence"
 author: Sofia Lanaspa, A17105313
-format: pdf
+format: gfm
 ---
 
 # Mini Project: Investigating Pertussis Resurgence

@@ -1,7 +1,7 @@
 ---
 title: "BIMM 143 Lab 16: Essential UNIX for bioinformatics"
 author: "Sofia Lanaspa, A17105313"
-format: html
+format: gfm
 ---
 
 To us the terminal: tools (top bar) --> terminal --> new terminal
