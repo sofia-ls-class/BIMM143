@@ -1,0 +1,85 @@
+---
+title: "BIMM 143 Lab 7: Analyzing sequencing data in the cloud"
+author: "Sofia Lanaspa, A17105313"
+format: html
+---
+
+Successfully initiated launch of instance (i-02966b1f383463c8c)
+
+ssh -i "~/Downloads/sofia_bimm143.pem" ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com
+
+
+cd ~/Downloads used to go from home to downloads
+if I just put cd Downloads then it tried to get there from the place I am in right now
+
+gunzip: unzip files
+tar -xvf: untar files
+cd: change dir
+
+PATH is a special evironment variable that store the location of exe files in UNIX systems. I can print it with 'echo $PATH'
+
+We can add to it with:
+export PATH=$PATH:/my/new/path
+
+The SRA-TOOLKIT allows us to query and download raw sequencing data from NBCI's SRA database. Key commands include:
+
+prefetch [SRACODE]
+fastq-dump [SRACODE]
+
+
+to connect: 
+MacBook-Pro-4:BIMM 143 Lab 17 sofialanaspa$ ls
+BIMM 143 Lab 17.Rproj   BIMM143_Lab17.qmd
+MacBook-Pro-4:BIMM 143 Lab 17 sofialanaspa$ cd ~/Downloads
+MacBook-Pro-4:Downloads sofialanaspa$ chmod 400 "sofia_bimm143.pem"
+MacBook-Pro-4:Downloads sofialanaspa$ ssh -i "sofia_bimm143.pem" ubuntu@ec2-52-38-137-79.us-west-2.compute.amazonaws.com
+
+
+TO SPEED UP KALLISTO:
+index so it can go though sequences instead of having to ream from the beginning
+
+$ kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq
+
+$ kallisto quant -i hg19.ensembl -o SRR2156849_quant SRR2156849_1.fastq SRR2156849_2.fastq &
+
+$ kallisto quant -i hg19.ensembl -o SRR2156850_quant SRR2156850_1.fastq SRR2156850_2.fastq &
+
+$ kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq &
+
+
+chmod +x run.sh
+nano
+nano run.sh
+
+kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq
+
+
+
+scp: secure copy from or to a remote machine
+# scp -i keyfile username@remotecomputer:FILE2COPY NEWlocalFILE
+
+scp -r -i "~/Downloads/sofia_bimm143.pem" ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com:~/*_quant .
+
+-r tells it to go into subdirectories
+
+
+key class 17: 
+ssh -i "sofia_bimm143.pem" ubuntu@ec2-50-112-49-91.us-west-2.compute.amazonaws.com
+
+## Downstream Analysis
+```{r}
+# BiocManager::install("tximport") 
+```
+
+```{r}
+library(tximport)
+
+# setup the folder and filenames to read
+folders <- dir(pattern="SRR21568*")
+samples <- sub("_quant", "", folders)
+files <- file.path( folders, "abundance.h5" )
+names(files) <- samples
+
+txi.kallisto <- tximport(files, type = "kallisto", txOut = TRUE)
+```
+

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sofia Lanaspa, A17105313">
+
+<title>BIMM 143 Lab 7: Analyzing sequencing data in the cloud</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="BIMM143_Lab17_files/libs/clipboard/clipboard.min.js"></script>
+<script src="BIMM143_Lab17_files/libs/quarto-html/quarto.js"></script>
+<script src="BIMM143_Lab17_files/libs/quarto-html/popper.min.js"></script>
+<script src="BIMM143_Lab17_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="BIMM143_Lab17_files/libs/quarto-html/anchor.min.js"></script>
+<link href="BIMM143_Lab17_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="BIMM143_Lab17_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="BIMM143_Lab17_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="BIMM143_Lab17_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="BIMM143_Lab17_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">BIMM 143 Lab 7: Analyzing sequencing data in the cloud</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Sofia Lanaspa, A17105313 </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Successfully initiated launch of instance (i-02966b1f383463c8c)</p>
+<p>ssh -i “~/Downloads/sofia_bimm143.pem” ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com</p>
+<p>cd ~/Downloads used to go from home to downloads if I just put cd Downloads then it tried to get there from the place I am in right now</p>
+<p>gunzip: unzip files tar -xvf: untar files cd: change dir</p>
+<p>PATH is a special evironment variable that store the location of exe files in UNIX systems. I can print it with ‘echo $PATH’</p>
+<p>We can add to it with: export PATH=$PATH:/my/new/path</p>
+<p>The SRA-TOOLKIT allows us to query and download raw sequencing data from NBCI’s SRA database. Key commands include:</p>
+<p>prefetch [SRACODE] fastq-dump [SRACODE]</p>
+<p>to connect: MacBook-Pro-4:BIMM 143 Lab 17 sofialanaspa$ ls BIMM 143 Lab 17.Rproj BIMM143_Lab17.qmd MacBook-Pro-4:BIMM 143 Lab 17 sofialanaspa$ cd ~/Downloads MacBook-Pro-4:Downloads sofialanaspa$ chmod 400 “sofia_bimm143.pem” MacBook-Pro-4:Downloads sofialanaspa$ ssh -i “sofia_bimm143.pem” ubuntu@ec2-52-38-137-79.us-west-2.compute.amazonaws.com</p>
+<p>TO SPEED UP KALLISTO: index so it can go though sequences instead of having to ream from the beginning</p>
+<p>$ kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq</p>
+<p>$ kallisto quant -i hg19.ensembl -o SRR2156849_quant SRR2156849_1.fastq SRR2156849_2.fastq &amp;</p>
+<p>$ kallisto quant -i hg19.ensembl -o SRR2156850_quant SRR2156850_1.fastq SRR2156850_2.fastq &amp;</p>
+<p>$ kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq &amp;</p>
+<p>chmod +x run.sh nano nano run.sh</p>
+<p>kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq</p>
+<p>scp: secure copy from or to a remote machine # scp -i keyfile username@remotecomputer:FILE2COPY NEWlocalFILE</p>
+<p>scp -r -i “~/Downloads/sofia_bimm143.pem” ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com:~/*_quant .</p>
+<p>-r tells it to go into subdirectories</p>
+<p>key class 17: ssh -i “sofia_bimm143.pem” ubuntu@ec2-50-112-49-91.us-west-2.compute.amazonaws.com</p>
+<section id="everything-i-put-in-the-terminal" class="level2">
+<h2 class="anchored" data-anchor-id="everything-i-put-in-the-terminal">everything i put in the terminal:</h2>
+<p>MacBook-Pro-4:Downloads sofialanaspa$ whoami sofialanaspa MacBook-Pro-4:Downloads sofialanaspa$ aws bash: aws: command not found MacBook-Pro-4:Downloads sofialanaspa$ cd Downloads bash: cd: Downloads: No such file or directory MacBook-Pro-4:Downloads sofialanaspa$ cd ~/Downloads/ MacBook-Pro-4:Downloads sofialanaspa$ chmod 400 “sofia_bimm143.pem” MacBook-Pro-4:Downloads sofialanaspa$ ssh -i “sofia_bimm143.pem” ubuntu@ec2-50-112-49-91.us-west-2.compute.amazonaws.com The authenticity of host ‘ec2-50-112-49-91.us-west-2.compute.amazonaws.com (50.112.49.91)’ can’t be established. ED25519 key fingerprint is SHA256:7HsLqHb+/ldoiFWLYb/V7L2FGhXW1vKECSrwk2WobBE. This key is not known by any other names. Are you sure you want to continue connecting (yes/no/[fingerprint])? yes Warning: Permanently added ‘ec2-50-112-49-91.us-west-2.compute.amazonaws.com’ (ED25519) to the list of known hosts. Welcome to Ubuntu 24.04.1 LTS (GNU/Linux 6.8.0-1016-aws x86_64)</p>
+<ul>
+<li>Documentation: https://help.ubuntu.com</li>
+<li>Management: https://landscape.canonical.com</li>
+<li>Support: https://ubuntu.com/pro</li>
+</ul>
+<p>System information as of Tue Nov 26 21:03:27 UTC 2024</p>
+<p>System load: 0.12 Temperature: -273.1 C Usage of /: 1.6% of 95.82GB Processes: 172 Memory usage: 1% Users logged in: 0 Swap usage: 0% IPv4 address for ens5: 172.31.31.150</p>
+<p>Expanded Security Maintenance for Applications is not enabled.</p>
+<p>0 updates can be applied immediately.</p>
+<p>Enable ESM Apps to receive additional future security updates. See https://ubuntu.com/esm or run: sudo pro status</p>
+<p>The list of available updates is more than a week old. To check for new updates run: sudo apt update</p>
+<p>The programs included with the Ubuntu system are free software; the exact distribution terms for each program are described in the individual files in /usr/share/doc/*/copyright.</p>
+<p>Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by applicable law.</p>
+<p>To run a command as administrator (user “root”), use “sudo <command>”. See “man sudo_root” for details.</command></p>
+<p>ubuntu@ip-172-31-31-150:~$ whoami ubuntu ubuntu@ip-172-31-31-150:~$ curl -O https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz % Total % Received % Xferd Average Speed Time Time Time Current Dload Upload Total Spent Left Speed 100 89.1M 100 89.1M 0 0 35.1M 0 0:00:02 0:00:02 –:–:– 35.1M ubuntu@ip-172-31-31-150:~$ tar -zxvf sratoolkit.current-ubuntu64.tar tar (child): sratoolkit.current-ubuntu64.tar: Cannot open: No such file or directory tar (child): Error is not recoverable: exiting now tar: Child returned status 2 tar: Error is not recoverable: exiting now ubuntu@ip-172-31-31-150:~$ tar -zxvf sratoolkit.current-ubuntu64.tar.gz sratoolkit.3.1.1-ubuntu64/ sratoolkit.3.1.1-ubuntu64/README.md sratoolkit.3.1.1-ubuntu64/README-vdb-config sratoolkit.3.1.1-ubuntu64/schema/ sratoolkit.3.1.1-ubuntu64/schema/vdb/ sratoolkit.3.1.1-ubuntu64/schema/vdb/vdb.vschema sratoolkit.3.1.1-ubuntu64/schema/vdb/built-in.vschema sratoolkit.3.1.1-ubuntu64/schema/insdc/ sratoolkit.3.1.1-ubuntu64/schema/insdc/insdc.vschema sratoolkit.3.1.1-ubuntu64/schema/insdc/sra.vschema sratoolkit.3.1.1-ubuntu64/schema/insdc/seq.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/ sratoolkit.3.1.1-ubuntu64/schema/sra/abi.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/pevents.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/generic-fastq.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/454.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/pacbio.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/illumina.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/helicos.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/nanopore.vschema sratoolkit.3.1.1-ubuntu64/schema/sra/ion-torrent.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/ sratoolkit.3.1.1-ubuntu64/schema/ncbi/clip.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/seq-graph.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/stats.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/ncbi.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/wgs-contig.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/sra.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/spotname.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/pnbrdb.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/varloc.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/seq.vschema sratoolkit.3.1.1-ubuntu64/schema/ncbi/trace.vschema sratoolkit.3.1.1-ubuntu64/schema/align/ sratoolkit.3.1.1-ubuntu64/schema/align/refseq.vschema sratoolkit.3.1.1-ubuntu64/schema/align/pileup-stats.vschema sratoolkit.3.1.1-ubuntu64/schema/align/mate-cache.vschema sratoolkit.3.1.1-ubuntu64/schema/align/seq.vschema sratoolkit.3.1.1-ubuntu64/schema/align/align.vschema sratoolkit.3.1.1-ubuntu64/schema/align/qstat.vschema sratoolkit.3.1.1-ubuntu64/schema/csra2/ sratoolkit.3.1.1-ubuntu64/schema/csra2/stats.vschema sratoolkit.3.1.1-ubuntu64/schema/csra2/reference.vschema sratoolkit.3.1.1-ubuntu64/schema/csra2/read.vschema sratoolkit.3.1.1-ubuntu64/schema/csra2/csra2.vschema sratoolkit.3.1.1-ubuntu64/bin/ sratoolkit.3.1.1-ubuntu64/bin/bam-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sra-stat.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/bam-load.3 sratoolkit.3.1.1-ubuntu64/bin/sra-search sratoolkit.3.1.1-ubuntu64/bin/srapath-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sra-search.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/prefetch.3 sratoolkit.3.1.1-ubuntu64/bin/sam-dump.3 sratoolkit.3.1.1-ubuntu64/bin/sff-dump.3 sratoolkit.3.1.1-ubuntu64/bin/sff-dump sratoolkit.3.1.1-ubuntu64/bin/fastq-dump sratoolkit.3.1.1-ubuntu64/bin/fastq-load.3 sratoolkit.3.1.1-ubuntu64/bin/srf-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sra-sort.3 sratoolkit.3.1.1-ubuntu64/bin/kdbmeta.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sratools sratoolkit.3.1.1-ubuntu64/bin/cache-mgr.3 sratoolkit.3.1.1-ubuntu64/bin/helicos-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/cache-mgr sratoolkit.3.1.1-ubuntu64/bin/srapath sratoolkit.3.1.1-ubuntu64/bin/vdb-config.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/kar.3 sratoolkit.3.1.1-ubuntu64/bin/srf-load.3 sratoolkit.3.1.1-ubuntu64/bin/illumina-dump sratoolkit.3.1.1-ubuntu64/bin/illumina-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/srapath.3 sratoolkit.3.1.1-ubuntu64/bin/sam-dump sratoolkit.3.1.1-ubuntu64/bin/vdb-encrypt sratoolkit.3.1.1-ubuntu64/bin/sra-pileup.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/fastq-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-decrypt.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/rcexplain sratoolkit.3.1.1-ubuntu64/bin/prefetch-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-decrypt sratoolkit.3.1.1-ubuntu64/bin/cache-mgr.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/illumina-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-lock.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-lock sratoolkit.3.1.1-ubuntu64/bin/align-info.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-encrypt.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/ncbi/ sratoolkit.3.1.1-ubuntu64/bin/ncbi/default.kfg sratoolkit.3.1.1-ubuntu64/bin/ncbi/certs.kfg sratoolkit.3.1.1-ubuntu64/bin/ncbi/vdb-copy.kfg sratoolkit.3.1.1-ubuntu64/bin/vdb-validate sratoolkit.3.1.1-ubuntu64/bin/rcexplain.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-copy.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-config sratoolkit.3.1.1-ubuntu64/bin/fastq-load sratoolkit.3.1.1-ubuntu64/bin/sra-pileup-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sff-load.3 sratoolkit.3.1.1-ubuntu64/bin/kar.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/illumina-load.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-dump.3 sratoolkit.3.1.1-ubuntu64/bin/test-sra.3 sratoolkit.3.1.1-ubuntu64/bin/helicos-load sratoolkit.3.1.1-ubuntu64/bin/pacbio-load sratoolkit.3.1.1-ubuntu64/bin/helicos-load.3 sratoolkit.3.1.1-ubuntu64/bin/fastq-dump-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/abi-dump sratoolkit.3.1.1-ubuntu64/bin/test-sra sratoolkit.3.1.1-ubuntu64/bin/vdb-validate.3 sratoolkit.3.1.1-ubuntu64/bin/abi-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/dump-ref-fasta.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/illumina-dump.3 sratoolkit.3.1.1-ubuntu64/bin/pacbio-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/bam-load sratoolkit.3.1.1-ubuntu64/bin/sratools.3 sratoolkit.3.1.1-ubuntu64/bin/test-sra.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/kdbmeta.3 sratoolkit.3.1.1-ubuntu64/bin/sra-sort-cg sratoolkit.3.1.1-ubuntu64/bin/vdb-validate.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump.3 sratoolkit.3.1.1-ubuntu64/bin/latf-load sratoolkit.3.1.1-ubuntu64/bin/sra-sort.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/fastq-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/abi-load.3 sratoolkit.3.1.1-ubuntu64/bin/sam-dump-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/srapath.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/prefetch.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-unlock sratoolkit.3.1.1-ubuntu64/bin/illumina-load sratoolkit.3.1.1-ubuntu64/bin/srf-load sratoolkit.3.1.1-ubuntu64/bin/vdb-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-encrypt.3 sratoolkit.3.1.1-ubuntu64/bin/sratools.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sra-stat.3 sratoolkit.3.1.1-ubuntu64/bin/sra-pileup.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-lock.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/align-info sratoolkit.3.1.1-ubuntu64/bin/sam-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sff-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/sra-search.3 sratoolkit.3.1.1-ubuntu64/bin/abi-load sratoolkit.3.1.1-ubuntu64/bin/sra-sort-cg.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/cg-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-copy.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-decrypt.3 sratoolkit.3.1.1-ubuntu64/bin/fastq-dump.3 sratoolkit.3.1.1-ubuntu64/bin/dump-ref-fasta.3 sratoolkit.3.1.1-ubuntu64/bin/sff-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/kar sratoolkit.3.1.1-ubuntu64/bin/dump-ref-fasta sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/cg-load sratoolkit.3.1.1-ubuntu64/bin/vdb-copy sratoolkit.3.1.1-ubuntu64/bin/vdb-config.3 sratoolkit.3.1.1-ubuntu64/bin/sra-sort-cg.3 sratoolkit.3.1.1-ubuntu64/bin/sra-stat sratoolkit.3.1.1-ubuntu64/bin/abi-dump.3 sratoolkit.3.1.1-ubuntu64/bin/abi-dump.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/rcexplain.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/align-info.3 sratoolkit.3.1.1-ubuntu64/bin/sra-sort sratoolkit.3.1.1-ubuntu64/bin/vdb-unlock.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/kdbmeta sratoolkit.3.1.1-ubuntu64/bin/vdb-dump sratoolkit.3.1.1-ubuntu64/bin/sra-pileup sratoolkit.3.1.1-ubuntu64/bin/latf-load.3 sratoolkit.3.1.1-ubuntu64/bin/cg-load.3 sratoolkit.3.1.1-ubuntu64/bin/latf-load.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/prefetch sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump sratoolkit.3.1.1-ubuntu64/bin/pacbio-load.3 sratoolkit.3.1.1-ubuntu64/bin/vdb-dump-orig.3.1.1 sratoolkit.3.1.1-ubuntu64/bin/vdb-unlock.3 sratoolkit.3.1.1-ubuntu64/bin/sff-load sratoolkit.3.1.1-ubuntu64/example/ sratoolkit.3.1.1-ubuntu64/example/perl/ sratoolkit.3.1.1-ubuntu64/example/perl/base-stats.pl sratoolkit.3.1.1-ubuntu64/example/perl/mismatch-stats.pl sratoolkit.3.1.1-ubuntu64/example/perl/gene-lookup.pl sratoolkit.3.1.1-ubuntu64/example/perl/simplefastq.pl sratoolkit.3.1.1-ubuntu64/example/perl/splitfastq.pl sratoolkit.3.1.1-ubuntu64/example/perl/dump-reference.pl sratoolkit.3.1.1-ubuntu64/example/perl/quality-stats.pl sratoolkit.3.1.1-ubuntu64/CHANGES sratoolkit.3.1.1-ubuntu64/README-blastn ubuntu@ip-172-31-31-150:~$ ls sratoolkit.3.1.1-ubuntu64 sratoolkit.current-ubuntu64.tar.gz ubuntu@ip-172-31-31-150:~$ cd sratoolkit.3.1.1-ubuntu64/bin ubuntu@ip-172-31-31-150:~/sratoolkit.3.1.1-ubuntu64/bin$ pwd /home/ubuntu/sratoolkit.3.1.1-ubuntu64/bin ubuntu@ip-172-31-31-150:~/sratoolkit.3.1.1-ubuntu64/bin$ ls abi-dump helicos-load sam-dump.3.1.1 srf-load.3.1.1 abi-dump.3 helicos-load.3 sff-dump test-sra abi-dump.3.1.1 helicos-load.3.1.1 sff-dump.3 test-sra.3 abi-load illumina-dump sff-dump.3.1.1 test-sra.3.1.1 abi-load.3 illumina-dump.3 sff-load vdb-config abi-load.3.1.1 illumina-dump.3.1.1 sff-load.3 vdb-config.3 align-info illumina-load sff-load.3.1.1 vdb-config.3.1.1 align-info.3 illumina-load.3 sra-pileup vdb-copy align-info.3.1.1 illumina-load.3.1.1 sra-pileup-orig.3.1.1 vdb-copy.3 bam-load kar sra-pileup.3 vdb-copy.3.1.1 bam-load.3 kar.3 sra-pileup.3.1.1 vdb-decrypt bam-load.3.1.1 kar.3.1.1 sra-search vdb-decrypt.3 cache-mgr kdbmeta sra-search.3 vdb-decrypt.3.1.1 cache-mgr.3 kdbmeta.3 sra-search.3.1.1 vdb-dump cache-mgr.3.1.1 kdbmeta.3.1.1 sra-sort vdb-dump-orig.3.1.1 cg-load latf-load sra-sort-cg vdb-dump.3 cg-load.3 latf-load.3 sra-sort-cg.3 vdb-dump.3.1.1 cg-load.3.1.1 latf-load.3.1.1 sra-sort-cg.3.1.1 vdb-encrypt dump-ref-fasta ncbi sra-sort.3 vdb-encrypt.3 dump-ref-fasta.3 pacbio-load sra-sort.3.1.1 vdb-encrypt.3.1.1 dump-ref-fasta.3.1.1 pacbio-load.3 sra-stat vdb-lock fasterq-dump pacbio-load.3.1.1 sra-stat.3 vdb-lock.3 fasterq-dump-orig.3.1.1 prefetch sra-stat.3.1.1 vdb-lock.3.1.1 fasterq-dump.3 prefetch-orig.3.1.1 srapath vdb-unlock fasterq-dump.3.1.1 prefetch.3 srapath-orig.3.1.1 vdb-unlock.3 fastq-dump prefetch.3.1.1 srapath.3 vdb-unlock.3.1.1 fastq-dump-orig.3.1.1 rcexplain srapath.3.1.1 vdb-validate fastq-dump.3 rcexplain.3 sratools vdb-validate.3 fastq-dump.3.1.1 rcexplain.3.1.1 sratools.3 vdb-validate.3.1.1 fastq-load sam-dump sratools.3.1.1 fastq-load.3 sam-dump-orig.3.1.1 srf-load fastq-load.3.1.1 sam-dump.3 srf-load.3 ubuntu@ip-172-31-31-150:~/sratoolkit.3.1.1-ubuntu64/bin$ cd ~ ubuntu@ip-172-31-31-150:~$ ls sratoolkit.3.1.1-ubuntu64 sratoolkit.current-ubuntu64.tar.gz ubuntu@ip-172-31-31-150:~$ ~/sratoolkit.3.0.1-ubuntu64/bin/prefetch –version -bash: /home/ubuntu/sratoolkit.3.0.1-ubuntu64/bin/prefetch: No such file or directory ubuntu@ip-172-31-31-150:~$ ~/sratoolkit.3.1.1-ubuntu64/ –version -bash: /home/ubuntu/sratoolkit.3.1.1-ubuntu64/: Is a directory ubuntu@ip-172-31-31-150:~$ ~/sratoolkit.3.1.1-ubuntu64/bin/prefetch –version</p>
+<p>/home/ubuntu/sratoolkit.3.1.1-ubuntu64/bin/prefetch : 3.1.1</p>
+<p>ubuntu@ip-172-31-31-150:~$ export PATH=<span class="math inline">\(PATH:/home/ubuntu/sratoolkit.3.1.1-ubuntu64/bin/prefetch
+ubuntu@ip-172-31-31-150:~\)</span> prefetch Command ‘prefetch’ not found, but can be installed with: sudo apt install sra-toolkit ubuntu@ip-172-31-31-150:~$ prefetch –version Command ‘prefetch’ not found, but can be installed with: sudo apt install sra-toolkit ubuntu@ip-172-31-31-150:~$ /home/ubuntu/sratoolkit.3.1.1-ubuntu64/bin/prefetch Usage: prefetch [options] <sra accession=""> […] Download SRA files and their dependencies</sra></p>
+<p>prefetch [options] –perm <jwt cart="" file=""> <sra accession=""> […] Download SRA files and their dependencies from JWT cart</sra></jwt></p>
+<p>prefetch [options] –cart <kart file=""> Download cart file</kart></p>
+<p>prefetch [options] <url> –output-file <file> Download URL to FILE</file></url></p>
+<p>prefetch [options] <url> […] –output-directory <directory> Download URL or URL-s to DIRECTORY</directory></url></p>
+<p>prefetch [options] <sra file=""> […] Check SRA file for missed dependencies and download them</sra></p>
+<p>ubuntu@ip-172-31-31-150:~$ export PATH=<span class="math inline">\(PATH:/home/ubuntu/sratoolkit.3.1.1-ubuntu64/binubuntu@ip-172-31-31-150:~\)</span> prefetch –version</p>
+<p>prefetch : 3.1.1</p>
+<p>ubuntu@ip-172-31-31-150:~$ prefetch SRR600956 2024-11-26T21:08:32 prefetch.3.1.1: 1) Resolving ‘SRR600956’… 2024-11-26T21:08:32 prefetch.3.1.1: Current preference is set to retrieve SRA Normalized Format files with full base quality scores 2024-11-26T21:08:33 prefetch.3.1.1: 1) Downloading ‘SRR600956’… 2024-11-26T21:08:33 prefetch.3.1.1: SRA Normalized Format file is being retrieved 2024-11-26T21:08:33 prefetch.3.1.1: Downloading via HTTPS… 2024-11-26T21:08:52 prefetch.3.1.1: HTTPS download succeed 2024-11-26T21:08:53 prefetch.3.1.1: ‘SRR600956’ is valid: 604278382 bytes were streamed from 604277499 2024-11-26T21:08:53 prefetch.3.1.1: 1) ‘SRR600956’ was downloaded successfully ubuntu@ip-172-31-31-150:~$ pwd /home/ubuntu ubuntu@ip-172-31-31-150:~$ fastq-dump SRR600956 Read 25849655 spots for SRR600956 Written 25849655 spots for SRR600956 ubuntu@ip-172-31-31-150:~$ head SRR600956.fastq <span class="citation" data-cites="SRR600956.1">@SRR600956.1</span> HWI-EAS486_0002:3:1:1382:1342 length=38 GTGTTCCAAATGCTGCAAATGGGTGTCAATGTATGTTA +SRR600956.1 HWI-EAS486_0002:3:1:1382:1342 length=38 D?BCCA?BDBDBACD@=??BAAC&gt;CBBBBBCBBBD?%% <span class="citation" data-cites="SRR600956.2">@SRR600956.2</span> HWI-EAS486_0002:3:1:1382:5487 length=38 GATGATAGTTTCTTTTGCCGTTAGCACAATTTTTCCAA +SRR600956.2 HWI-EAS486_0002:3:1:1382:5487 length=38 DCEECEAECEFFDFECEEEFFFFDB?BBADEEEEE??? <span class="citation" data-cites="SRR600956.3">@SRR600956.3</span> HWI-EAS486_0002:3:1:1382:4694 length=38 TGTAGGCTCCACCTCTGGGGGCAGGGCACAGACAAACA ubuntu@ip-172-31-31-150:~$ grep -c “<span class="citation" data-cites="SRR600956">@SRR600956</span>” SRR600956.fastq 25849655 ubuntu@ip-172-31-31-150:~$ prefetch SRR2156848 2024-11-26T21:11:36 prefetch.3.1.1: 1) Resolving ‘SRR2156848’… 2024-11-26T21:11:36 prefetch.3.1.1: Current preference is set to retrieve SRA Normalized Format files with full base quality scores 2024-11-26T21:11:36 prefetch.3.1.1: 1) Downloading ‘SRR2156848’… 2024-11-26T21:11:36 prefetch.3.1.1: SRA Normalized Format file is being retrieved 2024-11-26T21:11:36 prefetch.3.1.1: Downloading via HTTPS… 2024-11-26T21:11:46 prefetch.3.1.1: HTTPS download succeed 2024-11-26T21:11:47 prefetch.3.1.1: ‘SRR2156848’ is valid: 227793481 bytes were streamed from 227780499 2024-11-26T21:11:47 prefetch.3.1.1: 1) ‘SRR2156848’ was downloaded successfully 2024-11-26T21:11:47 prefetch.3.1.1: ‘SRR2156848’ has 0 unresolved dependencies ubuntu@ip-172-31-31-150:~$ fastq-dump –split-3 SRR2156848 Read 2959900 spots for SRR2156848 Written 2959900 spots for SRR2156848 ubuntu@ip-172-31-31-150:~$ ls SRR2156848 SRR600956 sratoolkit.current-ubuntu64.tar.gz SRR2156848_1.fastq SRR600956.fastq SRR2156848_2.fastq sratoolkit.3.1.1-ubuntu64 ubuntu@ip-172-31-31-150:~$ ls SSR<em> ls: cannot access ’SSR</em>’: No such file or directory ubuntu@ip-172-31-31-150:~$ ls SRR2156848 SRR600956 sratoolkit.current-ubuntu64.tar.gz SRR2156848_1.fastq SRR600956.fastq SRR2156848_2.fastq sratoolkit.3.1.1-ubuntu64 ubuntu@ip-172-31-31-150:~$ ls SR* SRR2156848_1.fastq SRR2156848_2.fastq SRR600956.fastq</p>
+<p>SRR2156848: SRR2156848.sra</p>
+<p>SRR600956: SRR600956.sra ubuntu@ip-172-31-31-150:~$ ls SRR2156848 SRR2156848/ SRR2156848_1.fastq SRR2156848_2.fastq<br>
+ubuntu@ip-172-31-31-150:~$ ls SRR2156848/ SRR2156848.sra ubuntu@ip-172-31-31-150:~$ fastq-dump –split-3 SRR2156848 Read 2959900 spots for SRR2156848 Written 2959900 spots for SRR2156848 ubuntu@ip-172-31-31-150:~$ ls SRR2156848 SRR2156848.sra ubuntu@ip-172-31-31-150:~$ cd SRR2156848 ubuntu@ip-172-31-31-150:~/SRR2156848$ ls SRR2156848.sra ubuntu@ip-172-31-31-150:~/SRR2156848$ fastq-dump –help</p>
+<p>Usage: fastq-dump [options] <path> [<path>…] fastq-dump [options] <accession></accession></path></path></p>
+<p>INPUT -A|–accession <accession> Replaces accession derived from <path> in filename(s) and deflines (only for single table dump) –table <table-name> Table name within cSRA object, default is “SEQUENCE”</table-name></path></accession></p>
+<p>PROCESSING</p>
+<p>Read Splitting Sequence data may be used in raw form or split into individual reads –split-spot Split spots into individual reads</p>
+<p>Full Spot Filters Applied to the full spot independently of –split-spot -N|–minSpotId <rowid> Minimum spot id -X|–maxSpotId <rowid> Maximum spot id –spot-groups &lt;[list]&gt; Filter by SPOT_GROUP (member): name[,…] -W|–clip Remove adapter sequences from reads</rowid></rowid></p>
+<p>Common Filters Applied to spots when –split-spot is not set, otherwise - to individual reads -M|–minReadLen <len> Filter by sequence length &gt;= <len> -R|–read-filter &lt;[filter]&gt; Split into files by READ_FILTER value optionally filter by value: pass|reject|criteria|redacted -E|–qual-filter Filter used in early 1000 Genomes data: no sequences starting or ending with &gt;= 10N –qual-filter-1 Filter used in current 1000 Genomes data</len></len></p>
+<p>Filters based on alignments Filters are active when alignment data are present –aligned Dump only aligned sequences –unaligned Dump only unaligned sequences –aligned-region &lt;name[:from-to]&gt; Filter by position on genome. Name can either be accession.version (ex: NC_000001.10) or file specific name (ex: “chr1” or “1”). “from” and “to” are 1-based coordinates –matepair-distance &lt;from-to|unknown&gt; Filter by distance between matepairs. Use “unknown” to find matepairs split between the references. Use from-to to limit matepair distance on the same reference</p>
+<p>Filters for individual reads Applied only with –split-spot set –skip-technical Dump only biological reads</p>
+<p>OUTPUT -O|–outdir <path> Output directory, default is working directory ‘.’ ) -Z|–stdout Output to stdout, all split data become joined into single stream –gzip Compress output using gzip: deprecated, not recommended –bzip2 Compress output using bzip2: deprecated, not recommended</path></p>
+<p>Multiple File Options Setting these options will produce more than 1 file, each of which will be suffixed according to splitting criteria. –split-files Write reads into separate files. Read number will be suffixed to the file name.<br>
+NOTE! The <code>--split-3</code> option is recommended. In cases where not all spots have the same number of reads, this option will produce files that WILL CAUSE ERRORS in most programs which process split pair fastq files. –split-3 3-way splitting for mate-pairs. For each spot, if there are two biological reads satisfying filter conditions, the first is placed in the <code>*_1.fastq</code> file, and the second is placed in the <code>*_2.fastq</code> file. If there is only one biological read satisfying the filter conditions, it is placed in the <code>*.fastq</code> file.All other reads in the spot are ignored. -G|–spot-group Split into files by SPOT_GROUP (member name) -R|–read-filter &lt;[filter]&gt; Split into files by READ_FILTER value optionally filter by value: pass|reject|criteria|redacted -T|–group-in-dirs Split into subdirectories instead of files -K|–keep-empty-files Do not delete empty files</p>
+<p>FORMATTING</p>
+<p>Sequence -C|–dumpcs &lt;[cskey]&gt; Formats sequence using color space (default for SOLiD),“cskey” may be specified for translation -B|–dumpbase Formats sequence using base space (default for other than SOLiD).</p>
+<p>Quality -Q|–offset <integer> Offset to use for quality conversion, default is 33 –fasta &lt;[line width]&gt; FASTA only, no qualities, optional line wrap width (set to zero for no wrapping) –suppress-qual-for-cskey suppress quality-value for cskey</integer></p>
+<p>Defline -F|–origfmt Defline contains only original sequence name -I|–readids Append read id after spot id as ‘accession.spot.readid’ on defline –helicos Helicos style defline –defline-seq <fmt> Defline format specification for sequence. –defline-qual <fmt> Defline format specification for quality. <fmt> is string of characters and/or variables. The variables can be one of: $ac - accession, $si spot id, $sn spot name, $sg spot group (barcode), $sl spot length in bases, $ri read number, $rn read name, <span class="math inline">\(rl read length in bases. '[]'
+                                   could be used for an optional output: if
+                                   all vars in [] yield empty values whole
+                                   group is not printed. Empty value is empty
+                                   string or for numeric variables. Ex:
+                                   @\)</span>sn[<em><span class="math inline">\(rn]/\)</span>ri ’</em>$rn’ is omitted if name is empty</fmt></fmt></fmt></p>
+<p>OTHER: –ngc <path> <path> to ngc file –disable-multithreading disable multithreading -h|–help Output brief explanation of program usage -V|–version Display the version of the program -L|–log-level <level> Logging level as number or enum string One of (fatal|sys|int|err|warn|info) or (0-5) Current/default is warn -v|–verbose Increase the verbosity level of the program Use multiple times for more verbosity –ncbi_error_report Control program execution environment report generation (if implemented). One of (never|error|always). Default is error –legacy-report use legacy style ‘Written spots’ for tool</level></path></path></p>
+<p>fastq-dump : 3.1.1</p>
+<p>ubuntu@ip-172-31-31-150:~/SRR2156848$ cd .. ubuntu@ip-172-31-31-150:~$ ls SRR2156848 SRR600956 sratoolkit.current-ubuntu64.tar.gz SRR2156848_1.fastq SRR600956.fastq SRR2156848_2.fastq sratoolkit.3.1.1-ubuntu64 ubuntu@ip-172-31-31-150:~$ head SRR2156848 1.fastq ==&gt; SRR2156848 &lt;== head: error reading ‘SRR2156848’: Is a directory head: cannot open ‘1.fastq’ for reading: No such file or directory ubuntu@ip-172-31-31-150:~$ prefetch SRR2156849 SRR2156850 SRR2156851 2024-11-26T21:18:43 prefetch.3.1.1: 1) Resolving ‘SRR2156849’… 2024-11-26T21:18:43 prefetch.3.1.1: Current preference is set to retrieve SRA Normalized Format files with full base quality scores 2024-11-26T21:18:44 prefetch.3.1.1: 1) Downloading ‘SRR2156849’… 2024-11-26T21:18:44 prefetch.3.1.1: SRA Normalized Format file is being retrieved 2024-11-26T21:18:44 prefetch.3.1.1: Downloading via HTTPS… 2024-11-26T21:18:51 prefetch.3.1.1: HTTPS download succeed 2024-11-26T21:18:51 prefetch.3.1.1: ‘SRR2156849’ is valid: 226003506 bytes were streamed from 225998499 2024-11-26T21:18:51 prefetch.3.1.1: 1) ‘SRR2156849’ was downloaded successfully 2024-11-26T21:18:51 prefetch.3.1.1: ‘SRR2156849’ has 0 unresolved dependencies 2024-11-26T21:18:51 prefetch.3.1.1: 2) Resolving ‘SRR2156850’… 2024-11-26T21:18:52 prefetch.3.1.1: 2) Downloading ‘SRR2156850’… 2024-11-26T21:18:52 prefetch.3.1.1: SRA Normalized Format file is being retrieved 2024-11-26T21:18:52 prefetch.3.1.1: Downloading via HTTPS… 2024-11-26T21:19:00 prefetch.3.1.1: HTTPS download succeed 2024-11-26T21:19:00 prefetch.3.1.1: ‘SRR2156850’ is valid: 201306539 bytes were streamed from 201293311 2024-11-26T21:19:00 prefetch.3.1.1: 2) ‘SRR2156850’ was downloaded successfully 2024-11-26T21:19:00 prefetch.3.1.1: ‘SRR2156850’ has 0 unresolved dependencies 2024-11-26T21:19:00 prefetch.3.1.1: 3) Resolving ‘SRR2156851’… 2024-11-26T21:19:01 prefetch.3.1.1: 3) Downloading ‘SRR2156851’… 2024-11-26T21:19:01 prefetch.3.1.1: SRA Normalized Format file is being retrieved 2024-11-26T21:19:01 prefetch.3.1.1: Downloading via HTTPS… 2024-11-26T21:19:08 prefetch.3.1.1: HTTPS download succeed 2024-11-26T21:19:08 prefetch.3.1.1: ‘SRR2156851’ is valid: 179358367 bytes were streamed from 179357939 2024-11-26T21:19:08 prefetch.3.1.1: 3) ‘SRR2156851’ was downloaded successfully 2024-11-26T21:19:08 prefetch.3.1.1: ‘SRR2156851’ has 0 unresolved dependencies ubuntu@ip-172-31-31-150:~$ fastq-dump –split-3 SRR2156849 SRR2156850 SRR2156851 Read 2985576 spots for SRR2156849 Written 2985576 spots for SRR2156849 Read 2669778 spots for SRR2156850 Written 2669778 spots for SRR2156850 Read 2369745 spots for SRR2156851 Written 2369745 spots for SRR2156851 ubuntu@ip-172-31-31-150:~$ ls *.fastq SRR2156848_1.fastq SRR2156849_2.fastq SRR2156851_1.fastq SRR2156848_2.fastq SRR2156850_1.fastq SRR2156851_2.fastq SRR2156849_1.fastq SRR2156850_2.fastq SRR600956.fastq ubuntu@ip-172-31-31-150:~$ wget https://github.com/pachterlab/kallisto/releases/download/v0.44.0/kallisto_linux-v0.44.0.tar.gz –2024-11-26 21:21:22– https://github.com/pachterlab/kallisto/releases/download/v0.44.0/kallisto_linux-v0.44.0.tar.gz Resolving github.com (github.com)… 140.82.116.4 Connecting to github.com (github.com)|140.82.116.4|:443… connected. HTTP request sent, awaiting response… 302 Found Location: https://objects.githubusercontent.com/github-production-release-asset-2e65be/26562905/b78619ae-0542-11e8-908e-6777f5455785?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=releaseassetproduction%2F20241126%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20241126T212122Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=4084efc505b914f61ca5b7c5166193decc2ff0a306276d901fba058ad702d09f&amp;X-Amz-SignedHeaders=host&amp;response-content-disposition=attachment%3B%20filename%3Dkallisto_linux-v0.44.0.tar.gz&amp;response-content-type=application%2Foctet-stream [following] –2024-11-26 21:21:22– https://objects.githubusercontent.com/github-production-release-asset-2e65be/26562905/b78619ae-0542-11e8-908e-6777f5455785?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=releaseassetproduction%2F20241126%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20241126T212122Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=4084efc505b914f61ca5b7c5166193decc2ff0a306276d901fba058ad702d09f&amp;X-Amz-SignedHeaders=host&amp;response-content-disposition=attachment%3B%20filename%3Dkallisto_linux-v0.44.0.tar.gz&amp;response-content-type=application%2Foctet-stream Resolving objects.githubusercontent.com (objects.githubusercontent.com)… 185.199.111.133, 185.199.108.133, 185.199.109.133, … Connecting to objects.githubusercontent.com (objects.githubusercontent.com)|185.199.111.133|:443… connected. HTTP request sent, awaiting response… 200 OK Length: 6668961 (6.4M) [application/octet-stream] Saving to: ‘kallisto_linux-v0.44.0.tar.gz’</p>
+<p>kallisto_linux-v0.44.0. 100%[==============================&gt;] 6.36M –.-KB/s in 0.06s</p>
+<p>2024-11-26 21:21:23 (105 MB/s) - ‘kallisto_linux-v0.44.0.tar.gz’ saved [6668961/6668961]</p>
+<p>ubuntu@ip-172-31-31-150:~$ tar -zxvf kallisto_linux-v0.44.0.tar.gz kallisto_linux-v0.44.0/ kallisto_linux-v0.44.0/license.txt kallisto_linux-v0.44.0/kallisto kallisto_linux-v0.44.0/test/ kallisto_linux-v0.44.0/test/chrom.txt kallisto_linux-v0.44.0/test/transcripts.gtf.gz kallisto_linux-v0.44.0/test/reads_2.fastq.gz kallisto_linux-v0.44.0/test/transcripts.fasta.gz kallisto_linux-v0.44.0/test/README.md kallisto_linux-v0.44.0/test/Snakefile kallisto_linux-v0.44.0/test/reads_1.fastq.gz kallisto_linux-v0.44.0/README.md ubuntu@ip-172-31-31-150:~$ ~/kallisto_linux-v0.44.0/kallisto kallisto 0.44.0</p>
+<p>Usage: kallisto <cmd> [arguments] ..</cmd></p>
+<p>Where <cmd> can be one of:</cmd></p>
+<pre><code>index         Builds a kallisto index 
+quant         Runs the quantification algorithm 
+pseudo        Runs the pseudoalignment step 
+h5dump        Converts HDF5-formatted results to plaintext
+inspect       Inspects and gives information about an index
+version       Prints version information
+cite          Prints citation information</code></pre>
+<p>Running kallisto <cmd> without arguments prints usage information for <cmd></cmd></cmd></p>
+<p>ubuntu@ip-172-31-31-150:~$ export PATH=<span class="math inline">\(PATH:/home/ubuntu/kallisto_linux-v0.44.0
+ubuntu@ip-172-31-31-150:~\)</span> kallisto kallisto 0.44.0</p>
+<p>Usage: kallisto <cmd> [arguments] ..</cmd></p>
+<p>Where <cmd> can be one of:</cmd></p>
+<pre><code>index         Builds a kallisto index 
+quant         Runs the quantification algorithm 
+pseudo        Runs the pseudoalignment step 
+h5dump        Converts HDF5-formatted results to plaintext
+inspect       Inspects and gives information about an index
+version       Prints version information
+cite          Prints citation information</code></pre>
+<p>Running kallisto <cmd> without arguments prints usage information for <cmd></cmd></cmd></p>
+<p>ubuntu@ip-172-31-31-150:~$ wget ftp://ftp.ensembl.org/pub/release-67/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh37.67.cdna.all.fa.gz –2024-11-26 21:24:46– ftp://ftp.ensembl.org/pub/release-67/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh37.67.cdna.all.fa.gz =&gt; ‘Homo_sapiens.GRCh37.67.cdna.all.fa.gz’ Resolving ftp.ensembl.org (ftp.ensembl.org)… 193.62.193.169 Connecting to ftp.ensembl.org (ftp.ensembl.org)|193.62.193.169|:21… connected. Logging in as anonymous … Logged in! ==&gt; SYST … done. ==&gt; PWD … done. ==&gt; TYPE I … done. ==&gt; CWD (1) /pub/release-67/fasta/homo_sapiens/cdna … done. ==&gt; SIZE Homo_sapiens.GRCh37.67.cdna.all.fa.gz … 59979785 ==&gt; PASV … done. ==&gt; RETR Homo_sapiens.GRCh37.67.cdna.all.fa.gz … done. Length: 59979785 (57M) (unauthoritative)</p>
+<p>Homo_sapiens.GRCh37.67. 100%[==============================&gt;] 57.20M 17.9MB/s in 3.5s</p>
+<p>2024-11-26 21:24:52 (16.2 MB/s) - ‘Homo_sapiens.GRCh37.67.cdna.all.fa.gz’ saved [59979785]</p>
+<p>ubuntu@ip-172-31-31-150:~$ gunzip Homo_sapiens.GRCh37.67.cdna.all.fa.gz ubuntu@ip-172-31-31-150:~$ kallisto index -i hg19.ensembl Homo_sapiens.GRCh37.67.cdna.all.fa</p>
+<p>[build] loading fasta file Homo_sapiens.GRCh37.67.cdna.all.fa [build] k-mer length: 31 [build] warning: clipped off poly-A tail (longer than 10) from 1369 target sequences [build] counting k-mers … done. [build] building target de Bruijn graph … done [build] creating equivalence classes … done [build] target de Bruijn graph has 999022 contigs and contains 100753348 k-mers</p>
+<p>ubuntu@ip-172-31-31-150:~$ kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq</p>
+<p>[quant] fragment length distribution will be estimated from the data [index] k-mer length: 31 [index] number of targets: 176,981 [index] number of k-mers: 100,753,348 [index] number of equivalence classes: 671,976 [quant] running in paired-end mode [quant] will process pair 1: SRR2156848_1.fastq SRR2156848_2.fastq [quant] finding pseudoalignments for the reads … done [quant] processed 2,959,900 reads, 2,563,611 reads pseudoaligned [quant] estimated average fragment length: 190.486 [ em] quantifying the abundances … done [ em] the Expectation-Maximization algorithm ran for 1,057 rounds</p>
+<p>ubuntu@ip-172-31-31-150:~$ ls SRR2156848_quant abundance.h5 abundance.tsv run_info.json ubuntu@ip-172-31-31-150:~$ kallisto quant -i ___ -o SRR2156849_quant SRR2156849_1.fastq SRR2156849_2.fastq</p>
+<p>Error: kallisto index file not found ___</p>
+<p>Usage: kallisto quant [arguments] FASTQ-files</p>
+<p>Required arguments: -i, –index=STRING Filename for the kallisto index to be used for quantification -o, –output-dir=STRING Directory to write output to</p>
+<p>Optional arguments: –bias Perform sequence based bias correction -b, –bootstrap-samples=INT Number of bootstrap samples (default: 0) –seed=INT Seed for the bootstrap sampling (default: 42) –plaintext Output plaintext instead of HDF5 –fusion Search for fusions for Pizzly –single Quantify single-end reads –single-overhang Include reads where unobserved rest of fragment is predicted to lie outside a transcript –fr-stranded Strand specific reads, first read forward –rf-stranded Strand specific reads, first read reverse -l, –fragment-length=DOUBLE Estimated average fragment length -s, –sd=DOUBLE Estimated standard deviation of fragment length (default: -l, -s values are estimated from paired end data, but are required when using –single) -t, –threads=INT Number of threads to use (default: 1) –pseudobam Save pseudoalignments to transcriptome to BAM file –genomebam Project pseudoalignments to genome sorted BAM file -g, –gtf GTF file for transcriptome information (required for –genomebam) -c, –chromosomes Tab separated file with chrosome names and lengths (optional for –genomebam, but recommended) ubuntu@ip-172-31-31-150:~$ kallisto quant -i hg19.ensembl -o SRR2156849_quant SRR2156849_1.fastq SRR2156849_2.fastq &amp; [1] 1503 ubuntu@ip-172-31-31-150:~$ [quant] fragment length distribution will be estimated from the data [index] k-mer length: 31 [index] number of targets: 176,981 [index] number of k-mers: 100,753,348</p>
+<p>ubuntu@ip-172-31-31-150:~$ kallisto quant -i hg19.ensembl -o SRR2156850_quant SRR2156850_1.fastq SRR2156850_2.fastq &amp; [2] 1504 ubuntu@ip-172-31-31-150:~$ [quant] fragment length distribution will be estimated from the data [index] k-mer length: 31 [index] number of targets: 176,981 [index] number of k-mers: 100,753,348 [index] number of equivalence classes: 671,976 [quant] running in paired-end mode [quant] will process pair 1: SRR2156849_1.fastq SRR2156849_2.fastq [quant] finding pseudoalignments for the reads … ubuntu@ip-172-31-31-150:~$ [index] number of equivalence classes: 671,976 kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq &amp;[quant] running in paired-end mode [quant] will process pair 1: SRR2156850_1.fastq ubuntu@ip-172-31-31-150:~$ kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq &amp; [3] 1508 ubuntu@ip-172-31-31-150:~$ [quant] fragment length distribution will be estimated from the data [index] k-mer length: 31 [index] number of targets: 176,981 [index] number of k-mers: 100,753,348 done [quant] processed 2,985,576 reads, 2,600,800 reads pseudoaligned [quant] estimated average fragment length: 188.479 [ em] quantifying the abundances …[index] number of equivalence classes: 671,976 [quant] running in paired-end mode [quant] will process pair 1: SRR2156851_1.fastq SRR2156851_2.fastq [quant] finding pseudoalignments for the reads … done [quant] processed 2,669,778 reads, 2,372,309 reads pseudoaligned [quant] estimated average fragment length: 186.747 [ em] quantifying the abundances … done [ em] the Expectation-Maximization algorithm ran for 1,046 rounds</p>
+<p>done [ em] the Expectation-Maximization algorithm ran for 969 rounds</p>
+<p>jobs [1] Done kallisto quant -i hg19.ensembl -o SRR2156849_quant SRR2156849_1.fastq SRR2156849_2.fastq [2]- Running kallisto quant -i hg19.ensembl -o SRR2156850_quant SRR2156850_1.fastq SRR2156850_2.fastq &amp; [3]+ Running kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq &amp; ubuntu@ip-172-31-31-150:~$ done [quant] processed 2,369,745 reads, 2,111,474 reads pseudoaligned [quant] estimated average fragment length: 191.177 [ em] quantifying the abundances … done [ em] the Expectation-Maximization algorithm ran for 1,058 rounds</p>
+<p>jobs [2]- Done kallisto quant -i hg19.ensembl -o SRR2156850_quant SRR2156850_1.fastq SRR2156850_2.fastq [3]+ Done kallisto quant -i hg19.ensembl -o SRR2156851_quant SRR2156851_1.fastq SRR2156851_2.fastq ubuntu@ip-172-31-31-150:~$ chmod +x run.sh chmod: cannot access ‘run.sh’: No such file or directory ubuntu@ip-172-31-31-150:~$ kallisto quant -i hg19.ensembl -o SRR2156848_quant SRR2156848_1.fastq SRR2156848_2.fastq</p>
+<p>[quant] fragment length distribution will be estimated from the data [index] k-mer length: 31 [index] number of targets: 176,981 [index] number of k-mers: 100,753,348 [index] number of equivalence classes: 671,976 [quant] running in paired-end mode [quant] will process pair 1: SRR2156848_1.fastq SRR2156848_2.fastq [quant] finding pseudoalignments for the reads … done [quant] processed 2,959,900 reads, 2,563,611 reads pseudoaligned [quant] estimated average fragment length: 190.486 [ em] quantifying the abundances … done [ em] the Expectation-Maximization algorithm ran for 1,057 rounds</p>
+<p>ubuntu@ip-172-31-31-150:~$ scp -r -i “~/Downloads/sofia_bimm143.pem” ubuntu@ec2-52-12-164-59.us-west-2.compute.amazonaws.com:~/*_quant . Warning: Identity file /home/ubuntu/Downloads/sofia_bimm143.pem not accessible: No such file or directory. ^Cubuntu@ip-172-31-31-150:~$ whoami ubuntu ubuntu@ip-172-31-31-150:~$ ls Homo_sapiens.GRCh37.67.cdna.all.fa SRR2156849_quant SRR2156851_quant SRR2156848 SRR2156850 SRR600956 SRR2156848_1.fastq SRR2156850_1.fastq SRR600956.fastq SRR2156848_2.fastq SRR2156850_2.fastq hg19.ensembl SRR2156848_quant SRR2156850_quant kallisto_linux-v0.44.0 SRR2156849 SRR2156851 kallisto_linux-v0.44.0.tar.gz SRR2156849_1.fastq SRR2156851_1.fastq sratoolkit.3.1.1-ubuntu64 SRR2156849_2.fastq SRR2156851_2.fastq sratoolkit.current-ubuntu64.tar.gz ubuntu@ip-172-31-31-150:~$ pwd /home/ubuntu ubuntu@ip-172-31-31-150:~$ Broadcast message from root@ip-172-31-31-150 (Tue 2024-11-26 21:47:48 UTC):</p>
+<p>The system will power off now!</p>
+<p>Connection to ec2-50-112-49-91.us-west-2.compute.amazonaws.com closed by remote host. Connection to ec2-50-112-49-91.us-west-2.compute.amazonaws.com closed. MacBook-Pro-4:Downloads sofialanaspa$</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
