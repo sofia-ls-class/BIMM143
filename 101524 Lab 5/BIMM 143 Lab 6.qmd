@@ -1,0 +1,219 @@
+---
+title: "R Functions Lab (Class 06)"
+author: "Sofia Lanaspa, PID:A17105313"
+format: pdf
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Background
+
+Introducing *R functions* and how to write our own R function
+
+Every function needs at least 3 things: - a name - input arguments -
+body (what it does)
+
+```{r}
+add <- function(x,y) {
+  x+y
+}
+```
+
+Using add() function
+
+```{r}
+add(2,4)
+```
+
+R allows functions to iterate over a vector:
+
+```{r}
+add_vector <- c(10,1,1,10)
+add(add_vector,1)
+```
+
+```{r}
+#Function will show error if there is only 1 argument, such as add(10), or more than 2, such as add(1,1,1)
+mean(c(10,10,NA),na.rm=T)
+```
+
+## Lab Sheet Questions
+
+### Question 1
+Q1: Write a function grade() to determine an overall grade from a vector of student homework assignment scores dropping the lowest single score. If a student misses a homework (i.e. has an NA value) this can be used as a score to be potentially dropped. Your final function should be adquately explained with code comments and be able to work on an example class gradebook such as this one in CSV format: “https://tinyurl.com/gradeinput” \[3pts\]
+
+Given vectors show the score of the students: student 1 - drop 90
+student 2 - drop NA student 3 - has dropped
+
+```{r}
+# Example input vectors to start with
+student1 <- c(100, 100, 100, 100, 100, 100, 100, 90)
+student2 <- c(100, NA, 90, 90, 90, 90, 97, 80)
+student3 <- c(90, NA, NA, NA, NA, NA, NA, NA)
+```
+
+Before writing a function write code that works
+
+```{r}
+student1
+#Avg student1
+mean(student1)
+#Avg student2 - gives NA because one NA present in vector
+mean(student2)
+#To ignore the NA and get a mean value do this:
+mean(student2,na.rm=T)
+#Avg student3 - not fair for their avg to be 90 despite dropping
+mean(student3,na.rm=T)
+```
+
+Use more complex code
+
+```{r}
+#Find the minimum score AND where it is on the vector
+min(student3)
+which.min(student3)
+```
+
+Code below explained: get the vector for student1, take the min value,
+index to subtract that value from the student1 vector, take mean of
+vector to get avg score
+
+```{r}
+mean(student1[-(which.min(student1))])
+```
+
+We still need to deal with NA values, we need to make them equal 0
+
+```{r}
+#save student2 vector in x
+x <- student2
+#see which values are NA
+is.na(x)
+#make NA values equal 0
+x[is.na(x)] <- 0
+#take the mean with NA values as 0
+x[ is.na(x) ] <- 0
+mean(x[-(which.min(x))])
+```
+
+Now lets write the grade() function :)
+
+```{r}
+grade <- function(x){
+  #finds NAs and makes them 0
+  x[ is.na(x) ] <- 0
+  
+  #drops min value and finds mean
+  mean(x[-(which.min(x))])
+}
+```
+
+Using the grade() function
+
+```{r}
+grade(student1)
+grade(student2)
+grade(student3)
+```
+
+Get full gradebook
+
+```{r}
+gradebook <- read.csv('https://tinyurl.com/gradeinput', row.names = 1)
+gradebook
+```
+
+Using the apply function on the : apply(dataset, margin, function) To
+use apply() function on this gradebook dataset I need to decide whether
+I want to apply the grade() function over the rows (1) or columns (2) of
+the gradebook.
+
+```{r}
+ans <- apply(gradebook, 1, grade)
+ans
+```
+
+### Question 2
+Q2: Using your grade() function and the supplied gradebook, Who is
+the top scoring student overall in the gradebook? \[3pts\]
+
+-   Get the scores of the students
+-   Find the max score using which.max() function
+
+```{r}
+# Which student got the highest score
+which.max(ans)
+# What was the highest score itself
+ans[which.max(ans)]
+```
+
+Student 18 had the highest score of 94.5
+
+### Question 3
+Q3:  From your analysis of the gradebook, which homework was toughest
+on students (i.e. obtained the lowest scores overall? \[2pts\]
+
+```{r}
+#Get the mean scores of each homework, change to 2 to get columns instead of rows, NA is true because we still have them
+avg.scores <- apply(gradebook, 2, mean, na.rm=T)
+avg.scores
+which.min(avg.scores)
+#use median instead of mean
+med.scores <- apply(gradebook, 2, median, na.rm=T)
+med.scores
+which.min(med.scores)
+
+masked_gradebook <- gradebook
+masked_gradebook[is.na(masked_gradebook)] = 0
+apply(masked_gradebook, 2, mean)
+
+#we could also modify grade function to keep lowest score
+grade2 <- function(x,drop.low=TRUE){
+  #finds the NAs in 'x' and makes them 0
+  x[ is.na(x) ] <- 0
+  
+  if(drop.low) {
+    cat("Hello low")
+    # Drops the lowest value and find mean
+    mean(x[-(which.min(x))])
+  }
+  else {
+    out <- mean(x)
+    cat('No low')
+  }
+  return(out)
+}
+
+grade2(ans,drop.low=F)
+```
+
+hw2 was the hardest since it had the lowest mean score of 72.5 (and
+lowest median score of 72.80)
+
+### Question 4
+Q4:  Optional Extension: From your analysis of the gradebook, which
+homework was most predictive of overall score (i.e. highest correlation
+with average grade score)? \[1pt\]
+```{r}
+#Are the final results (avg of each student) correlated with the scores of individual homeworks (gradebook cols)?
+
+#Use cor() to calculate correlation
+cor(ans,gradebook$hw1)
+
+```
+0.4250204 is not a very strong correlation
+```{r}
+cor(ans,masked_gradebook$hw5)
+```
+Use apply() to the cor() function over the masked_gradebook and use the ans scores for the class
+*need to spell out extra ans argument for cors()
+```{r}
+apply(masked_gradebook, 2, cor, y=ans)
+```
+hw5 had the greatest correlation with final grade
+
+### Question 5
+Q5:  Make sure you save your Quarto document and can click the
+“Render” (or Rmark- down”Knit”) button to generate a PDF foramt report
+without errors. Finally, submit your PDF to gradescope. \[1pt\]

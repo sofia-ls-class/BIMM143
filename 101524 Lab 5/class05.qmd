@@ -1,0 +1,133 @@
+---
+title: "Class 05: Data Visualization with GGPLOT"
+author: "Sofia Lanaspa, PID:A17105313"
+format: pdf
+---
+
+## Quarto
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Cars Data Set
+```{r}
+plot(cars)
+head(cars)
+```
+
+Q. How do we plot this wee data set with ggplot?
+All ggplot figures have at least 3 layers:
+
+- **data**
+- **aes** (how the data map to the plot)
+- **geom** (how the data draw the plot, lines, points, etc)
+
+Before using new package need to download and install it with the 'install.packages()' command!
+  *We don't want to install in quatro document because it would re-install every time
+
+Once installed, load it with 'library()' function
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+ggplot(cars) + aes(x=speed, y=dist) + geom_point()
+```
+Key-point: for simple plots like the one above ggplot is more verbose (more typing), but for more difficult plots just add more '+' which is easier than using base R plot()
+
+```{r}
+myFirstPlot <- ggplot(cars) + 
+  aes(speed, dist) + 
+  geom_point() +
+  geom_smooth(method = "lm", se=FALSE) +
+  labs(x="Speed (mph)", y="Distance (ft)",title="Speed vs stopping distance of old cars", subtitle = "From inbuilt car dataset") +
+  theme_bw()
+myFirstPlot
+```
+
+*when you need to edit a function, use AI (easier than reading the help tab)
+
+
+## Gene Data Set
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+nrow(genes)
+colnames(genes)
+ncol(genes)
+table(genes$State)
+round(table(genes$State)/nrow(genes),4)
+
+mySecondPlot <- ggplot(genes) +
+  aes(x=Condition1, y=Condition2, col=State) +
+  geom_point() +
+  labs(x="Control (no drug)", y="Drug Treatment", title= "Gene expression changes upon drug treatment")
+mySecondPlot + scale_color_manual(values=c("blue","gray","red"))
+```
+
+
+## Gapminder Data Set
+
+```{r}
+#install.packages("gapminder")
+#install.packages("dplyr")
+library(gapminder)
+library(dplyr)
+gapminder_2007 <- gapminder %>% filter(year==2007)
+ggplot(gapminder_2007) +
+  geom_point(aes(x = gdpPercap, y = lifeExp, size = pop), alpha=0.5) + 
+  scale_size_area(max_size = 10)
+
+ggplot(gapminder_2007) +
+  aes(x=gdpPercap, y=lifeExp, color=continent, size=pop) +
+  geom_point(alpha=0.4)
+
+gapminder_1957 <- gapminder %>% filter(year==1957 | year==2007)
+ggplot(gapminder_1957) +
+  geom_point(aes(x=gdpPercap, y=lifeExp, colour=continent, size=pop),   alpha=0.7) +
+  scale_size_area(max_size = 10) +
+  facet_wrap(~year) 
+```
+
+## Animated Graphs
+```{r}
+#install.packages("gifski")
+#install.packages("gganimate")
+library(gifski)
+library(gganimate)
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  # Facet by continent
+  facet_wrap(~continent) +
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  shadow_wake(wake_length = 0.1, alpha = FALSE)
+```
+
+## Bar Charts
+
+Find how many years there are in the data set:
+```{r}
+length(unique(gapminder$year))
+```
+
+Q. Extracr data for US in 1992
+```{r}
+filter(gapminder, country == "United States", year == 1992)
+```
+
+Q. Population of Ireland in the last year?
+```{r}
+filter(gapminder, country == "Ireland", year == 2007)
+```
+
+Q. What countries have a pop smaller than ireland in 2007?
+```{r}
+y2007 <- filter(gapminder, year == 2007)
+irePop <- filter(y2007, country == "Ireland") ["pop"]
+irePop
+filter(y2007, pop < 4109086)
+```
+
+

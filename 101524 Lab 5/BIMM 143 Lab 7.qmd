@@ -1,0 +1,250 @@
+---
+title: "Machine Learning (Lab 7)"
+author: "Sofia Lanaspa, PID:A17105313"
+format: pdf
+---
+
+Today we are going to learn how to apply different machine learning methods, beginning with clustering
+
+Goal: Find groups/clusters in input data
+```{r}
+#help page for rnorm
+?rnorm
+#get 10 numbers (other arguments are default)
+rnorm(10)
+#histogram with center at 0 (default, mean=0, sd=1)
+hist(rnorm(10000))
+#histogram with center at 3 (mean=3)
+hist(rnorm(10000,mean = 3))
+hist(rnorm(10000,3))
+#histogram with 2 peaks
+hist(c(rnorm(10000,3),rnorm(10000,-3)))
+#more clear code
+n <- 10000
+x <- c(rnorm(n,3),rnorm(n,-3))
+hist(x)
+```
+
+```{r}
+n <- 30
+x <- c(rnorm(n,-3),rnorm(n,3))
+y <- rev(x)
+z <- cbind(x,y)
+head(z)
+```
+
+```{r}
+plot(z)
+```
+
+## kmeans function
+
+**kmeans assigns cluster based on how far a point is from each mean**
+
+Q. How many points are in each element?
+```{r}
+#clusters of sizes 30, 30 (because n=30), so 30 points in each element
+km <- kmeans(z,centers=2)
+km
+```
+
+Results in kmeans object 'km'
+
+Q. What 'component' of your results object details: cluster size? cluster assignment/member? cluster center?
+```{r}
+attributes(km)
+#size
+km$size
+#assignment/member
+km$
+#center
+km$center
+```
+  
+Q. Plot x colored by the kmeans cluster assignment and add cluster centers as blue points
+
+**R will recycle shorter color vector to be the same length as the longger (num of data points) in z
+```{r}
+plot(z,col=1) #numbers are diff. colors
+plot(z,col=5)
+plot(z, col="red")
+#function below alternates blue and red points
+plot(z,col=c("red","blue"))
+```
+
+```{r}
+plot(z,col=km$cluster) #use clustering by km to assign color per cluster
+points(km$centers, col="blue", pch = 15, cex=3) #make points in center blue, 15 makes the shape (square), cex makes bigger square
+
+```
+
+Q. Run kmeans and ask for 4 clusters, plot results as above
+```{r}
+km4 <- kmeans(z,centers=4)
+km4
+plot(z,col=km4$cluster)
+#ISSUE!!! kmeans makes as many clusters as we tell it, no reasoning for how many we need
+#¡¡¡IT CHANGES THE CLUSTERS EACH TIME!!! (want to do what we tell it but badly)
+```
+
+## Hierarchical Clustering
+
+Lets take our same data 'z' and see how hclust() works
+
+First we need to find distance between rows of our data matriz 'z'
+```{r}
+?hclust #Hierarchical cluster analysis on a set of dissimilarities and methods for analyzing it.
+d <- dist(z)
+hc <- hclust(d)
+plot(hc)
+abline(h=8, col="red") #red line shows where clusters should be made
+```
+
+I can get my cluster membership vector by "cutting the tree" with the 'cutree()' function:
+```{r}
+?cutree #cuts tree to give you groups of your choosing
+grps <- cutree(hc,h=8)
+grps
+```
+
+Plot 'z' colored by our hclust results
+```{r}
+plot(z,col=grps)
+```
+
+## PRINCIPAL COMPONENT ANALYSIS (PCA)
+Principal components are new low dimensional axis (or surfaces) closest to the observations
+
+PCA tries to find axis of best fit to look at data in groups 
+
+### PCA of UK food data
+
+#### Q. Which approach to solving the ‘row-names problem’ mentioned above do you prefer and why? Is one approach more robust than another under certain circumstances?
+
+Read data from the UK on food consumption in different parts of the UK
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+#rownames(x) <- x[,1]     other option for remoing numbers column (1st col)
+#x <- x[,-1]
+head(x)
+x <- read.csv(url, row.names=1) #to remove column of only numbers, useless
+head(x)
+```
+
+#### Q. How many rows and columns are in your new data frame named x? What R functions could you use to answer this questions?
+```{r}
+ncol(x)
+nrow(x)
+dim(x)
+```
+4 columns and 17 rows
+
+
+```{r}
+barplot(as.matrix(x), beside=T, col=rainbow(nrow(x)))
+```
+
+#### Q3: Changing what optional argument in the above barplot() function results in the following plot?
+```{r}
+barplot(as.matrix(x), beside=F, col=rainbow(nrow(x)))
+```
+Differences in categories between countries are so unclear
+
+
+#### Q5: Generating all pairwise plots may help somewhat. Can you make sense of the following code and resulting figure? What does it mean if a given point lies on the diagonal for a given plot?
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+
+It is hard to see structure and trends in even this small data set, so how will we do this when we have ig data sets with thousands or tens of thousands of things we are measuring??
+
+
+Lets see how PCA deals with this dataset, so main function in base R to do PCA is called 'prccomp()'
+```{r}
+pca <- prcomp(t(x))
+summary(pca)
+
+```
+PC1 captures 67.44% of the data
+
+#### Q6. What is the main differences between N. Ireland and the other countries of the UK in terms of this data-set?
+
+```{r}
+pca$x
+```
+
+#### Q7. Complete the code below to generate a plot of PC1 vs PC2. The second line adds text labels over the data points.
+
+#### Q8. Customize your plot so that the colors of the country names match the colors in our UK and Ireland map and table at start of this document.
+```{r}
+plot(pca$x[,1],pca$x[,2],col=c("black","red","blue","green"),pch=16,xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x),col=c("black","red","blue","green"))
+```
+
+Bar chart, shows variation in each component
+```{r}
+v <- round( pca$sdev^2/sum(pca$sdev^2) * 100 )
+v
+z <- summary(pca)
+z$importance
+barplot(v, xlab="Principal Component", ylab="Percent Variation")
+```
+More useful bar graph to visualize data
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+```
+
+#### Q9: Generate a similar ‘loadings plot’ for PC2. What two food groups feature prominantely and what does PC2 maninly tell us about?
+
+```{r}
+library(ggplot2)
+
+df <- as.data.frame(pca$x)
+df_lab <- tibble::rownames_to_column(df, "Country")
+
+# Our first basic plot
+ggplot(df_lab) + 
+  aes(PC1, PC2, col=Country) + 
+  geom_point()
+```
+```{r}
+ggplot(df_lab) + 
+  aes(PC1, PC2, col=Country, label=Country) + 
+  geom_hline(yintercept = 0, col="gray") +
+  geom_vline(xintercept = 0, col="gray") +
+  geom_point(show.legend = FALSE) +
+  geom_label(hjust=1, nudge_x = -10, show.legend = FALSE) +
+  expand_limits(x = c(-300,500)) +
+  xlab("PC1 (67.4%)") +
+  ylab("PC2 (28%)") +
+  theme_bw()
+```
+
+```{r}
+ld <- as.data.frame(pca$rotation)
+ld_lab <- tibble::rownames_to_column(ld, "Food")
+
+ggplot(ld_lab) +
+  aes(PC1, Food) +
+  geom_col()
+```
+
+
+```{r}
+ggplot(ld_lab) +
+  aes(PC1, reorder(Food, PC1), bg=PC1) +
+  geom_col() + 
+  xlab("PC1 Loadings/Contributions") +
+  ylab("Food Group") +
+  scale_fill_gradient2(low="purple", mid="gray", high="darkgreen", guide=NULL) +
+  theme_bw()
+```
+
+```{r}
+## The inbuilt biplot() can be useful for small datasets 
+biplot(pca)
+```
+

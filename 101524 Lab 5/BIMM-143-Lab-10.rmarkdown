@@ -1,0 +1,92 @@
+---
+title: "Lab 10: Halloween mini project"
+author: "Sofia Lanaspa, A17105313"
+format: html
+---
+
+
+Download Halloween Candy Data
+
+
+```{r}
+candy_file <- "candy-data.csv"
+candy_file <- "https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"
+candy = read.csv(candy_file, row.names=1)
+head(candy)
+```
+
+
+
+#### Question 1
+Q1. How many different candy types are in this data set?
+
+
+```{r}
+nrow(candy)
+rownames(candy)
+```
+
+
+
+
+#### Question 2
+Q2. How many fruity candy types are in the dataset?
+
+
+```{r}
+sum(candy$fruity) 
+```
+
+
+Learn about win percent
+
+
+```{r}
+candy["Twix", ]$winpercent
+```
+
+
+
+
+#### Question 3
+Q3. What is your favorite candy in the dataset and what is it’s winpercent value?
+
+
+```{r}
+candy["Reese's Miniatures","winpercent"]
+
+max(candy$pricepercent) #price of most expensive candy
+```
+
+
+
+
+#### Question 4
+Q4. What is the winpercent value for “Kit Kat”?
+
+
+```{r}
+candy["Reese's Miniatures","winpercent"]
+```
+
+
+
+#### Question 5
+Q5. What is the winpercent value for “Tootsie Roll Snack Bars”?
+
+
+```{r}
+
+```
+
+
+
+
+
+#### Question 6
+
+
+
+
+
+
