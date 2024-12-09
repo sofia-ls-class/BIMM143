@@ -1,0 +1,236 @@
+---
+title: "Class 11: Structural Bioinformatics"
+author: Sofia Lanaspa, A17105313
+format: html
+---
+
+The main database for strucutal data on proteins is PDB(protein data book), let see what it contain:
+
+Data from: https://www.rcsb.org/stats
+```{r}
+pdbdb <- read.csv("Data Export Summary.csv")
+```
+
+```{r}
+pdbdb$total
+#issue because numbers are in quotes due to the coma
+as.numeric(sub(",","",pdbdb$Total)) #convert values to numeric to do math
+```
+Could turn the code above into a function
+```{r}
+comma2numeric <- function(x){
+  as.numeric(sub(",","",x))
+}
+comma2numeric((pdbdb$X.ray)) #test function
+```
+
+```{r}
+apply(pdbdb,2,comma2numeric)
+```
+
+OR TRY DIFFERENT FUNCTION
+```{r}
+library(readr)
+pdbdb <- read_csv("Data Export Summary.csv")
+```
+
+#### Q1: What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy
+```{r}
+#Sum of all x-rays divided the Total
+(sum(pdbdb$"X-ray")/sum(pdbdb$Total)) * 100
+```
+
+#### Q2: What proportion of structures in the PDB are protein?
+```{r}
+#First value of column 'Total' is only protein, divided by all the values in 'Total'
+(pdbdb$Total[1]/ sum(pdbdb$Total)) * 100
+```
+
+#### Q3: Type HIV in the PDB website search box on the home page and determine how many HIV-1 protease structures are in the current PDB?
+```{r}
+#Look up HIV on website, number of results = 4,553
+```
+
+#### Q4: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
+```{r}
+# because the diagram focuses on the central oxygen atom
+```
+
+
+#### Q6: Generate and save a figure clearly showing the two distinct chains of HIV-protease along with the ligand. You might also consider showing the catalytic residues ASP 25 in each chain and the critical water (we recommend “Ball & Stick” for these side-chains). Add this figure to your Quarto document.
+
+#### Discussion Topic: Can you think of a way in which indinavir, or even larger ligands and substrates, could enter the binding site?
+
+#### Q7: [Optional] As you have hopefully observed HIV protease is a homodimer (i.e. it is composed of two identical chains). With the aid of the graphic display can you identify secondary structure elements that are likely to only form in the dimer rather than the monomer?
+
+Import image from molstar (https://molstar.org/viewer/):
+![Molstar Image :)](1HSG.png)
+
+Steps to edit this protein structure:
+
+click arrow on right side - select D25 (aspartate) - 3D box - set representation to 'spacefill' - do the same for chain B 
+to visualize it in a more realistic way, and see where the ligand binds:
+on right hand side click components - add - selection = 'polymer' - representation = 'molecular surface' - add component
+![](1HSG-2.png)
+
+
+## Bio3D
+The Bio3D pachage allows us to do all sorts of structural bioinformatics work in R.
+
+Let's start with how it can read PDB files:
+```{r}
+library(bio3d)
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+```{r}
+attributes(pdb)
+```
+
+```{r}
+head(pdb$atom)
+```
+
+```{r}
+pdbseq(pdb)
+pdbseq(pdb)[25] #number gives you amino acid at that position 
+```
+
+#### Q7: How many amino acid residues are there in this pdb object? 
+```{r}
+sum(pdb$calpha) #there is 1 calpha per AA so count calpha's
+length(pdb)
+```
+
+#### Q8: Name one of the two non-protein residues? 
+```{r}
+#HOH, MK1
+```
+
+#### Q9: How many protein chains are in this structure?
+```{r}
+# 2 chains
+```
+
+```{r}
+adk <- read.pdb("3s36")
+adk
+```
+
+```{r}
+# Perform fleibility prediction 
+m <- nma(adk)
+plot(m)
+```
+
+Write out multi-model PDB file (trajectory) that we can use to make an animation or the predicted motions
+```{r}
+mktrj(m, file="adk.pdb")
+```
+
+I can open this in Mol* to play the trajectory...
+
+## Comparative analysis of Protein Structure
+
+```{r}
+library(bio3d)
+```
+
+Here we will find and analyze all ADK structures in the PDB database
+
+We will start with a single database accession id: "1ake_A"
+```{r}
+id <- "1ake_A"
+aa <- get.seq(id)
+```
+
+#### Question 10
+Q10. Which of the packages above is found only on BioConductor and not CRAN? 
+```{r}
+# BioConductor is a different set of packges only for biology tools, the 'msa' package is from BioConductor
+```
+
+I ran these cmds int the R console:
+
+install.packages("BiocManager")
+BiocManager::install("msa")
+
+#### Question 13
+Q13. How many amino acids are in this sequence, i.e. how long is this sequence? 
+
+```{r}
+length(aa$ali)
+aa$call
+```
+
+```{r}
+#b <- blast.pdb(aa)
+# fun fact: government website on election day so might block user
+```
+```{r}
+#head(b)
+#attributes(b)
+```
+
+Plot of results from blast search
+```{r}
+# hits <- plot(b)
+# y axis is the log of E values because it is difficult to work with extremely small values, often take the log in scenarios like these
+```
+
+```{r}
+# hits
+# hits$pdb.id
+# b$hit.table
+```
+
+
+```{r}
+hits <- NULL
+hits$pdb.id <- c('1AKE_A','6S36_A','6RZE_A','3HPR_A','1E4V_A','5EJE_A','1E4Y_A','3X2S_A','6HAP_A','6HAM_A','4K46_A','3GMT_A','4PZL_A')
+```
+
+```{r}
+# Download related PDB files
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+Next we will use the pdbin() function to alism and also optionally fit (superimpose) the identified PDB structures 
+
+```{r}
+# Align related PDBs
+pdbs <- pdbaln(files, fit = TRUE, exefile="msa")
+```
+
+```{r}
+pdbs
+```
+
+## Principal Component Analysis 
+
+```{r}
+# Perform PCA
+pc.xray <- pca(pdbs)
+plot(pc.xray)
+```
+```{r}
+# Visualize first principal component
+pc1 <- mktrj(pc.xray, pc=1, file="pc_1.pdb")
+```
+
+There are many more proteins in the Uniprot website than in our pdb, it takes years to find the protein structure of all of these proteins
+```{r}
+uniprot <- 248838887
+pdb <- 195610
+
+pdb/uniprot * 100
+# we only have about 8% of strcuutres of these proteins 
+```
+
+
+
+
+
+
+
